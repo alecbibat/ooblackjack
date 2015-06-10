@@ -20,6 +20,10 @@ class Player
   def hand_value
     sum = 0
     hand.each {|x| sum+=@@card_values[x]}
+    # for aces equalling either 1 or 11
+    # if sum > 21 && hand.include? (any ace card)
+    # then subtract 10
+    # but should also include functionality to allow for making multiple aces 1s instead of 11s
     return sum
     #for each item in the player's hand (hand.each do), we want to get the value of that key in @card_values and add them to a total
   end
@@ -53,9 +57,9 @@ class Deck
   end
 
   def deal_card(player)
-    2.times {player.hand << @cards.pop}
-    puts "#{player.name} now has a hand of #{player.hand}."
-    puts "#{player.name} now has a hand VALUE of #{player.hand_value}"
+    player.hand << @cards.pop
+    puts "#{player.name} was dealt a card!"
+    puts "#{player.name} has a current hand of #{player.hand}, and has a current hand value of #{player.hand_value}."
   end
 
 end
@@ -68,14 +72,72 @@ class Game
     @human = Human.new('Bob')
   end
 
+  def alternate_player
+    if @current_player == @human
+      @current_player = @computer
+    else
+      @current_player = human
+    end
+  end
+
+  def hit_or_stay
+    choices = [1, 2]
+    begin
+    print 'Hit(1) or stay(2)? >>'
+    choice = gets.chomp.to_i
+  end until choices.include?(choice)
+    if choice == 1
+      puts "You chose to hit!"
+      @deck.deal_card(@human)
+    else
+      puts "You stay."
+    end
+  end
+
+  def computer_hit_or_stay
+    if @computer.hand_value < 16
+      puts "The computer hits!"
+      @deck.deal_card(@computer)
+    else
+      puts "The computer stays."
+    end
+  end
+
+  def current_player_hit_or_stay
+    if @current_player == @human
+      hit_or_stay
+      # give a prompt to hit or stay
+      # add a card from the deck to the player hand
+      # OR
+      # pass to alternate_player
+    else # @current_player is @computer
+      computer_hit_or_stay
+
+      # add a card from the deck to computer hand IF the computer's hand value is under 16
+    end
+  end
+
   def deal_two_cards
-    @deck.deal_card(@human)
-    @deck.deal_card(@computer)
+    2.times {@deck.deal_card(@human)
+    @deck.deal_card(@computer)}
   end
 
   def play
+    @current_player = @human
     deal_two_cards
+    # loop do
+    current_player_hit_or_stay
+    # if both_players_stay
+    # then break
+
+    # elsif deck empty?
+    # then break
+
+    # else
+    alternate_player
+    # end
     # - some play order
+    # then some play_again prompt
   end
 
 end
